@@ -1,6 +1,6 @@
 // book-shelf-app/lib/db.js
 
-// 🚨 環境変数に戻す - Vercelはこれで動作します 🚨
+// Vercelデプロイでは環境変数 (DATABASE_URL) が自動的に使用される
 import { sql } from '@vercel/postgres';
 
 const db = sql;
@@ -12,12 +12,11 @@ const TABLE_NAME = 'books';
  */
 export async function getAllBooks() {
   try {
-    // db`...` は Vercel環境変数 (DATABASE_URL) を自動的に使用します
     const { rows } = await db`SELECT * FROM ${TABLE_NAME} ORDER BY "本棚番号"`;
     return rows;
   } catch (error) {
     console.error('Error fetching books (DB connection failed):', error);
-    // エラーを呼び出し元（route.js）に渡す
+    // Vercelに接続エラーを伝える
     throw error;
   }
 }

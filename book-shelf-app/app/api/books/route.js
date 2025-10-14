@@ -8,6 +8,7 @@ export async function GET() {
     const books = await getAllBooks();
     return NextResponse.json(books);
   } catch (error) {
+    // データベース接続エラーをキャッチし、500エラーを返す
     console.error('API Error fetching books:', error);
     return NextResponse.json(
       { error: 'データベースからのデータ取得中にエラーが発生しました。' },
