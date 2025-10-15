@@ -3,7 +3,7 @@
 import BookList from '@/components/BookList';
 
 // このファイルには、不要なモックデータやPrisma関連のコードは一切含まれていません。
-// 単にBookListコンポーネントを表示するだけです。
+// Vercelに新しいファイルとして認識させるための変更（コメント追加）
 export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50">
