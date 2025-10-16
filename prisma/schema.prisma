@@ -1,5 +1,5 @@
 // prisma/schema.prisma
-// PostgreSQL用のデータベーススキーマ定義
+// 複数の本棚（市町村）と本のデータを管理するスキーマ
 
 generator client {
   provider = "prisma-client-js"
@@ -7,22 +7,46 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  // 環境変数 DATABASE_URL を使用
+  // Neon DB接続のための環境変数を使用
   url      = env("DATABASE_URL")
 }
 
-// BookListsアプリで管理する「本」のモデル
-model Book {
+// 本棚（市町村の場所など）を管理するモデル
+model BookShelf {
   id        String   @id @default(cuid())
-  // ユーザーID: どのユーザーがこの本を登録したか
-  userId    String
-  title     String
-  author    String?
-  // 読了ステータス
-  isRead    Boolean  @default(false)
+  // 本棚を識別する管理ID（QRコードなどで使用）
+  shelfId   String   @unique
+  // 本棚の設置場所名（例: "世田谷区役所", "福岡市中央図書館"）
+  location  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  // この本棚に登録されている本
+  books     Book[]
+}
 
-  // 複合インデックス: ユーザーIDと作成日でクエリを最適化
-  @@index([userId, createdAt])
+// 本のデータを管理するモデル
+model Book {
+  id           String    @id @default(cuid())
+  // 紐づく本棚ID
+  shelfId      String
+  // タイトル (必須)
+  title        String
+  // 著者
+  author       String?
+  // 内容
+  description  String?
+  // ステータス: "available" (利用可能/〇) または "on_loan" (貸出中)
+  status       String    @default("available") 
+  // 管理者ID（自動入力、誰が追加したかの記録用）
+  adminId      String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  // リレーション
+  bookShelf    BookShelf @relation(fields: [shelfId], references: [shelfId])
+
+  // インデックス: 検索とリスト表示の最適化
+  @@index([shelfId, title])
+  @@index([status])
 }
