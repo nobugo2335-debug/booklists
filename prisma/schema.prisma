@@ -1,23 +1,28 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// prisma/schema.prisma
+// PostgreSQL用のデータベーススキーマ定義
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql" // または "mysql", "sqlite" など
+  provider = "postgresql"
+  // 環境変数 DATABASE_URL を使用
   url      = env("DATABASE_URL")
 }
 
-// BookList.tsxで定義されたBookインターフェースに対応するモデル
+// BookListsアプリで管理する「本」のモデル
 model Book {
-  id          String   @id @default(uuid())
-  shelfNo     String
-  title       String
-  author      String?  // nullが許容されるため String?
-  description String?  // nullが許容されるため String?
-  status      String   @default("available") // 'available' | 'on_loan' などの値を格納
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  // ユーザーID: どのユーザーがこの本を登録したか
+  userId    String
+  title     String
+  author    String?
+  // 読了ステータス
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 複合インデックス: ユーザーIDと作成日でクエリを最適化
+  @@index([userId, createdAt])
 }
